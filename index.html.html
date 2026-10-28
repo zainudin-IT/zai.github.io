@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PT. BANDANG MINING COAL - Sistem Rekap Radio Motorola & Inventory</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .bmc-watermark-bg {
+            position: relative;
+        }
+        .bmc-watermark-bg::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 320px;
+            height: 320px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="80" stroke="%23dc2626" stroke-width="12" fill="none"/><path d="M45,115 C55,75 145,65 155,105 C140,140 70,145 45,115 Z" fill="%23dc2626"/><text x="100" y="115" fill="white" font-family="sans-serif" font-weight="bold" font-style="italic" font-size="34" text-anchor="middle">Bmc</text></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Custom Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        @media print {
+            body { background: white !important; color: black !important; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            .bmc-watermark-bg::before { display: none !important; }
+            table { border-collapse: collapse !important; width: 100% !important; }
+            th, td { border: 1px solid #cbd5e1 !important; padding: 6px 8px !important; font-size: 10px !important; }
+            th { background-color: #f1f5f9 !important; color: black !important; }
+        }
+        .print-only { display: none; }
+
+        body.viewer-access .admin-only { display: none !important; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col" id="app-body">
+
+    <!-- LAYAR LOGIN UTAMA -->
+    <div id="main-login-screen" class="fixed inset-0 bg-[#0b1320] z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-800 animate-fadeIn">
+            <div class="bg-[#0b1320] p-6 text-white text-center relative border-b border-slate-800">
+                <div class="w-16 h-16 bg-amber-500 text-slate-950 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-amber-500/20">
+                    <i class="fa-solid fa-walkie-talkie text-3xl"></i>
+                </div>
+                <h1 class="font-black text-xl tracking-wider text-white">PT. BANDANG MINING COAL</h1>
+                <p class="text-xs text-slate-400 mt-1">Sistem Rekap Radio Motorola & Inventory IT</p>
+            </div>
+            
+            <form onsubmit="processMainLogin(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Username *</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-3 top-3 text-slate-400 text-xs"></i>
+                        <input type="text" id="main-username" required placeholder="Masukkan username..." class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none font-semibold text-slate-800 transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Password *</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-3 top-3 text-slate-400 text-xs"></i>
+                        <input type="password" id="main-password" required placeholder="••••••••" class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none text-slate-800 transition">
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold rounded-xl transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-right-to-bracket"></i> Masuk ke Sistem
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- KONTEN UTAMA APLIKASI -->
+    <div id="app-content-wrapper" class="hidden flex-1 flex flex-col">
+        <!-- HEADER NAVIGATION -->
+        <header class="bg-[#0b1320] text-white shadow-md sticky top-0 z-40 no-print py-1">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-slate-950 font-bold shadow-md shadow-amber-500/20">
+                        <i class="fa-solid fa-walkie-talkie text-xl text-slate-900"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="font-black text-base sm:text-lg tracking-wider text-white">PT. BANDANG MINING COAL</h1>
+                            <span id="role-badge" class="bg-amber-500 text-slate-950 text-[10px] font-bold px-2.5 py-0.5 rounded shadow">SERVER / ADMIN</span>
+                        </div>
+                        <p class="text-[11px] sm:text-xs text-slate-400 font-medium flex items-center gap-1.5 mt-0.5">
+                            <i class="fa-solid fa-user-gear text-amber-400 text-[11px]"></i>
+                            Sistem Rekap Radio Motorola & Inventory — <span id="logged-user-desc" class="text-slate-200 font-semibold">ZAINUDIN (IT Specialist / Full Server Access)</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-1 sm:space-x-2">
+                    <button onclick="window.print()" title="Cetak PDF / Dokumen" class="px-2.5 sm:px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-lg transition flex items-center gap-1.5 border border-slate-700">
+                        <i class="fa-solid fa-print"></i> <span class="hidden md:inline">Cetak PDF</span>
+                    </button>
+                    <button onclick="exportToCSV()" title="Unduh File CSV / Excel" class="px-2.5 sm:px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition flex items-center gap-1.5 shadow">
+                        <i class="fa-solid fa-file-excel"></i> <span class="hidden md:inline">Download Excel/CSV</span>
+                    </button>
+                    <button onclick="openSecurityModal()" title="Pengaturan Keamanan Akun" class="px-2.5 sm:px-3 py-2 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-bold rounded-lg transition flex items-center gap-1.5 border border-slate-700">
+                        <i class="fa-solid fa-shield-halved"></i> <span class="hidden md:inline">Keamanan</span>
+                    </button>
+                    <button onclick="handleMainLogout()" title="Keluar dari Aplikasi" class="px-2.5 sm:px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg transition flex items-center gap-1.5 shadow">
+                        <i class="fa-solid fa-power-off"></i> <span class="hidden md:inline">Keluar</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- TAB NAVIGATION BAR -->
+        <div class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-30 no-print">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-4 sm:space-x-8 overflow-x-auto">
+                <button id="tab-btn-dashboard" onclick="switchTab('dashboard')" class="py-3 px-1 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap transition">
+                    <i class="fa-solid fa-chart-pie text-slate-400"></i> Dashboard Overview
+                </button>
+                <button id="tab-btn-inventaris" onclick="switchTab('inventaris')" class="py-3 px-1 text-xs sm:text-sm font-bold border-b-2 border-amber-500 text-amber-600 flex items-center gap-2 whitespace-nowrap transition">
+                    <i class="fa-solid fa-walkie-talkie text-amber-500"></i> Master Radio & PTT ID
+                </button>
+                <button id="tab-btn-transaksi" onclick="switchTab('transaksi')" class="py-3 px-1 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap transition">
+                    <i class="fa-solid fa-boxes-packing text-slate-400"></i> Pengeluaran & Penerimaan
+                </button>
+                <button id="tab-btn-service" onclick="switchTab('service')" class="py-3 px-1 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap transition">
+                    <i class="fa-solid fa-wrench text-slate-400"></i> Rekap Perbaikan & Service
+                </button>
+            </div>
+        </div>
+
+        <!-- MAIN CONTAINER -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
+
+            <!-- KOP SURAT PRINT ONLY -->
+            <div class="print-only mb-6 border-b-2 border-slate-900 pb-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-900 tracking-wide">PT. BANDANG MINING COAL</h1>
+                        <p class="text-sm text-slate-600 font-semibold">DEPARTEMEN IT & RADIO KOMUNIKASI</p>
+                        <p class="text-xs text-slate-500">Penanggung Jawab System: ZAINUDIN (IT Specialist)</p>
+                    </div>
+                    <div class="text-right">
+                        <h2 class="text-lg font-bold text-slate-800">REKAP MASTER RADIO & INVENTARIS</h2>
+                        <p class="text-xs text-slate-500" id="print-date"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1. TAB DASHBOARD OVERVIEW -->
+            <div id="tab-dashboard" class="hidden space-y-6">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-slate-500 tracking-wider uppercase">TOTAL RADIO</span>
+                            <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-radio"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-2xl font-black text-slate-900" id="dash-total-unit">0</div>
+                            <p class="text-[11px] text-slate-400 font-medium mt-0.5">Unit Terdaftar</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-slate-500 tracking-wider uppercase">KONDISI BAIK</span>
+                            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-2xl font-black text-emerald-600" id="dash-bagus-unit">0</div>
+                            <p class="text-[11px] text-emerald-600 font-semibold mt-0.5">Siap Digunakan</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-slate-500 tracking-wider uppercase">PERLU SERVICE</span>
+                            <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-500 flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-2xl font-black text-rose-500" id="dash-service-unit">0</div>
+                            <p class="text-[11px] text-rose-500 font-semibold mt-0.5">Rusak / Service</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-slate-500 tracking-wider uppercase">EXPD EXPIRED</span>
+                            <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-calendar-xmark"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-2xl font-black text-purple-600" id="dash-expired-unit">0</div>
+                            <p class="text-[11px] text-purple-600 font-semibold mt-0.5">Garansi Habis</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-slate-500 tracking-wider uppercase">BARANG MASUK</span>
+                            <div class="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-arrow-down-left"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-2xl font-black text-teal-700" id="dash-masuk-unit">0</div>
+                            <p class="text-[11px] text-slate-400 font-medium mt-0.5">Log Penerimaan</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-slate-500 tracking-wider uppercase">BARANG KELUAR</span>
+                            <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-2xl font-black text-amber-600" id="dash-keluar-unit">0</div>
+                            <p class="text-[11px] text-slate-400 font-medium mt-0.5">Log Pengeluaran</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-[#0b1320] rounded-xl p-5 text-white flex justify-between items-center shadow-md border border-slate-800">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-amber-400">MODEL XIR M3688 (RIG)</p>
+                            <h3 class="text-3xl font-black text-white mt-1" id="dash-m3688-count">0 Unit</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl">
+                            <i class="fa-solid fa-tower-cell"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#0b1320] rounded-xl p-5 text-white flex justify-between items-center shadow-md border border-slate-800">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-blue-400">MODEL XIR C2660 (HANDHELD)</p>
+                            <h3 class="text-3xl font-black text-white mt-1" id="dash-c2660-count">0 Unit</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xl">
+                            <i class="fa-solid fa-walkie-talkie"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#0b1320] rounded-xl p-5 text-white flex justify-between items-center shadow-md border border-slate-800">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-emerald-400">MODEL CP 1660 (HANDHELD)</p>
+                            <h3 class="text-3xl font-black text-white mt-1" id="dash-cp1660-count">0 Unit</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl">
+                            <i class="fa-solid fa-radio"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <h4 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-amber-500"></i> Kondisi Radio Motorola IT PT. Bandang Mining Coal
+                        </h4>
+                        <div class="h-64 flex justify-center items-center">
+                            <canvas id="conditionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <h4 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-hourglass-half text-blue-500"></i> Status Masa Komisioning (EXPD 1 & 2 Tahun)
+                        </h4>
+                        <div class="h-64 flex justify-center items-center">
+                            <canvas id="expdChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. TAB INVENTARIS RADIO MASTER -->
+            <div id="tab-inventaris" class="space-y-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4 no-print">
+                    <div class="flex flex-1 gap-2 w-full sm:w-auto">
+                        <div class="relative flex-1">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
+                            <input type="text" id="search-input" onkeyup="renderTables()" placeholder="Cari SN, Unit, ID PTT, Model, PIC, Catatan..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        </div>
+                        <select id="filter-status" onchange="renderTables()" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            <option value="">Semua Kondisi</option>
+                            <option value="Bagus">Kondisi Baik / Ready</option>
+                            <option value="Rusak Ringan">Rusak Ringan</option>
+                            <option value="Rusak Berat">Rusak Berat</option>
+                            <option value="Dalam Perbaikan">Dalam Perbaikan</option>
+                        </select>
+                    </div>
+                    <div class="flex gap-2 w-full sm:w-auto justify-end">
+                        <button onclick="resetToInitialData()" title="Reset Data ke Bawaan Awal" class="admin-only px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold rounded-lg border border-slate-300 transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-rotate-left"></i> Reset Data
+                        </button>
+                        <button onclick="exportToCSV()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg border border-slate-300 transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-excel text-emerald-600"></i> Ekspor CSV
+                        </button>
+                        <button onclick="openAddModal()" class="admin-only px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold rounded-lg transition flex items-center gap-1.5 shadow">
+                            <i class="fa-solid fa-plus"></i> Tambah Radio Baru
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden bmc-watermark-bg relative">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-600">
+                            <thead class="bg-[#0b1320] text-slate-200 uppercase text-[11px] font-bold tracking-wider">
+                                <tr>
+                                    <th class="p-3 text-center">No</th>
+                                    <th class="p-3">Unit Pengguna</th>
+                                    <th class="p-3">Serial Number (SN)</th>
+                                    <th class="p-3">ID PTT</th>
+                                    <th class="p-3">Model Radio</th>
+                                    <th class="p-3">Tgl Komisioning</th>
+                                    <th class="p-3">Garansi</th>
+                                    <th class="p-3">Tgl EXPD</th>
+                                    <th class="p-3">Status EXPD (Sisa Waktu)</th>
+                                    <th class="p-3">Kondisi</th>
+                                    <th class="p-3">PIC / Dept</th>
+                                    <th class="p-3">Catatan / Komentar Terbaru</th>
+                                    <th class="p-3 text-center no-print admin-only">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-table-body" class="divide-y divide-slate-100 font-medium relative z-10">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. TAB PENGELUARAN & PENERIMAAN BARANG -->
+            <div id="tab-transaksi" class="hidden space-y-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center no-print">
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-boxes-packing text-amber-500"></i> Log Riwayat Pengeluaran & Penerimaan Barang
+                    </h3>
+                    <button onclick="openAddModal()" class="admin-only px-3.5 py-2 bg-[#0b1320] hover:bg-slate-800 text-white text-xs font-semibold rounded-lg transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Catat Transaksi Baru
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-600">
+                            <thead class="bg-slate-800 text-slate-200 uppercase text-[11px] font-bold">
+                                <tr>
+                                    <th class="p-3 text-center">No</th>
+                                    <th class="p-3">Tanggal</th>
+                                    <th class="p-3">Jenis Transaksi</th>
+                                    <th class="p-3">Unit Pengguna</th>
+                                    <th class="p-3">Serial Number & Model</th>
+                                    <th class="p-3">Penerima / PIC</th>
+                                    <th class="p-3">Lokasi / Dept</th>
+                                    <th class="p-3">Catatan Terkait</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transaksi-table-body" class="divide-y divide-slate-100 font-medium">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. TAB SERVICE & KERUSAKAN -->
+            <div id="tab-service" class="hidden space-y-4">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4 no-print">
+                    <div class="relative w-full sm:w-80">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+                        <input type="text" id="service-search-input" onkeyup="renderTables()" placeholder="Cari SN, ID PTT, Kendala..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 text-slate-700 placeholder-slate-400">
+                    </div>
+                    
+                    <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                        <button onclick="exportToCSV()" class="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-xl border border-emerald-200 transition flex items-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-file-excel text-emerald-600 text-sm"></i> Ekspor CSV
+                        </button>
+                        <button onclick="openAddModal()" class="admin-only px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition flex items-center gap-2 shadow-md hover:shadow-lg">
+                            <i class="fa-solid fa-plus"></i> Laporkan Kerusakan
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-700">
+                            <thead class="bg-[#0b1320] text-slate-200 uppercase text-[11px] font-bold tracking-wider">
+                                <tr>
+                                    <th class="p-3.5 pl-5">ID PTT</th>
+                                    <th class="p-3.5">SN RADIO</th>
+                                    <th class="p-3.5">TGL LAPOR</th>
+                                    <th class="p-3.5">DETAIL KERUSAKAN</th>
+                                    <th class="p-3.5">STATUS SERVICE</th>
+                                    <th class="p-3.5">TEKNISI / VENDOR</th>
+                                    <th class="p-3.5">CATATAN PERBAIKAN</th>
+                                    <th class="p-3.5 pr-5 text-right no-print admin-only">AKSI</th>
+                                </tr>
+                            </thead>
+                            <tbody id="service-table-body" class="divide-y divide-slate-100 font-medium">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="px-5 py-3 bg-slate-50/50 border-t border-slate-100 text-xs text-slate-500 font-medium">
+                        <span id="service-count-info">Menampilkan 0 log perbaikan</span>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="bg-white border-t border-slate-200 py-4 mt-auto no-print">
+            <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+                <p>© 2026 PT. Bandang Mining Coal — IT Radio Motorola Inventory System (ZAINUDIN Specialist)</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MODAL PENGATURAN KEAMANAN & PENGATURAN AKUN -->
+    <div id="security-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200">
+            <div class="bg-[#0b1320] p-4 text-white flex justify-between items-center">
+                <h3 class="font-bold text-sm flex items-center gap-2 text-amber-400">
+                    <i class="fa-solid fa-shield-halved"></i> Pengaturan Keamanan & Akses
+                </h3>
+                <button onclick="closeSecurityModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                    <p class="font-bold text-slate-700">Akses Aktif Saat Ini:</p>
+                    <p id="sec-current-role-desc" class="text-slate-500 mt-0.5">Admin Utama</p>
+                </div>
+
+                <!-- FORM PENGATURAN ADMIN / SERVER -->
+                <div id="admin-security-settings" class="space-y-3 border-t pt-3">
+                    <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Ubah Kredensial Admin/Server</h4>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Username Admin Baru</label>
+                        <input type="text" id="new-admin-user" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs" placeholder="Username baru...">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Password Admin Baru</label>
+                        <input type="password" id="new-admin-pass" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs" placeholder="Password baru...">
+                    </div>
+                    <button onclick="updateAdminCredentials()" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg shadow transition">
+                        Simpan Kredensial Admin
+                    </button>
+                </div>
+
+                <!-- FORM PENGATURAN VIEWER -->
+                <div class="space-y-3 border-t pt-3">
+                    <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Atur Kredensial Pengguna (Viewer)</h4>
+                    <p class="text-[11px] text-slate-500">Pengguna dengan akun ini hanya dapat melihat data dan mengunduh laporan tanpa hak ubah.</p>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Username Viewer</label>
+                        <input type="text" id="viewer-user" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs" placeholder="Contoh: viewer / tamu">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Password Viewer</label>
+                        <input type="password" id="viewer-pass" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs" placeholder="Password viewer...">
+                    </div>
+                    <button onclick="updateViewerCredentials()" class="w-full py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold rounded-lg shadow transition">
+                        Simpan Kredensial Viewer
+                    </button>
+                </div>
+
+                <div class="border-t pt-3 flex justify-end">
+                    <button onclick="closeSecurityModal()" class="px-4 py-2 bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FORM INPUT DATA RADIO -->
+    <div id="radio-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200">
+            <div class="bg-[#0b1320] px-6 py-4 text-white flex justify-between items-center sticky top-0 z-10">
+                <h3 class="font-bold text-base flex items-center gap-2" id="modal-title">
+                    <i class="fa-solid fa-walkie-talkie text-amber-400"></i> Form Data Radio Motorola & Service
+                </h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="radio-form" onsubmit="saveRadioData(event)" class="p-6 space-y-4">
+                <input type="hidden" id="radio-id">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Unit Pengguna *</label>
+                        <input type="text" id="form-unit-pengguna" required placeholder="Contoh: DT-802 / EXCA-05" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Serial Number (SN) *</label>
+                        <input type="text" id="form-sn" required placeholder="Contoh: 782TRX9005" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">ID PTT *</label>
+                        <input type="text" id="form-id-ptt" required placeholder="Contoh: PTT-105" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Model Radio *</label>
+                        <select id="form-model" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            <option value="Motorola XiR M3688">Motorola XiR M3688 (Rig)</option>
+                            <option value="Motorola XiR C2660">Motorola XiR C2660 (Handheld)</option>
+                            <option value="Motorola CP 1660">Motorola CP 1660 (Handheld)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-amber-900 uppercase mb-1">Tgl Komisioning *</label>
+                        <input type="date" id="form-tgl-komisioning" required onchange="calculateExpdDate()" class="w-full px-3 py-2 bg-white border border-amber-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-amber-900 uppercase mb-1">Durasi Garansi</label>
+                        <select id="form-durasi-expd" onchange="calculateExpdDate()" class="w-full px-3 py-2 bg-white border border-amber-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            <option value="1">1 Tahun</option>
+                            <option value="2" selected>2 Tahun</option>
+                        </select>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-amber-900 uppercase mb-1">Terhitung Tanggal EXPD</label>
+                        <input type="text" id="form-tgl-expd-display" readonly placeholder="Otomatis terisi..." class="w-full px-3 py-2 bg-amber-100 border border-amber-300 rounded-lg text-xs font-bold text-slate-700">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Kondisi Radio *</label>
+                        <select id="form-kondisi" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            <option value="Bagus">Kondisi Baik / Ready</option>
+                            <option value="Dalam Perbaikan">Dalam Perbaikan / Service</option>
+                            <option value="Rusak Ringan">Rusak Ringan</option>
+                            <option value="Rusak Berat">Rusak Berat</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Jenis Transaksi Log</label>
+                        <select id="form-transaksi" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            <option value="Barang Masuk">Barang Masuk (Penerimaan)</option>
+                            <option value="Barang Keluar">Barang Keluar (Pengeluaran)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Penerima / PIC *</label>
+                        <input type="text" id="form-pic" required placeholder="Nama PIC Pengguna" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Dept / Lokasi Mining *</label>
+                        <input type="text" id="form-dept" required placeholder="Pit 1 / Workshop / Security" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Catatan / Komentar Terbaru *</label>
+                    <textarea id="form-catatan" rows="2" placeholder="Tuliskan catatan kondisi, garansi, atau perbaikan terbaru..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none"></textarea>
+                </div>
+
+                <div class="pt-4 flex justify-end space-x-2 border-t border-slate-200">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition">Batal</button>
+                    <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold rounded-lg transition shadow">Simpan Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- CUSTOM TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const INITIAL_DATA = [
+            {
+                id: "RAD-001",
+                unitPengguna: "DT-802",
+                sn: "782TRX1001",
+                idPtt: "PTT-802",
+                model: "Motorola XiR M3688",
+                tglKomisioning: "2023-01-15",
+                durasiExpd: 2,
+                tglExpd: "2025-01-15",
+                kondisi: "Bagus",
+                transaksi: "Barang Masuk",
+                pic: "Budi Santoso",
+                dept: "Production Pit 1",
+                catatan: "Rig Terpasang Baik, sinyal kuat di pit utama"
+            },
+            {
+                id: "RAD-002",
+                unitPengguna: "EXCA-05",
+                sn: "782TRX1002",
+                idPtt: "PTT-505",
+                model: "Motorola XiR M3688",
+                tglKomisioning: "2022-05-10",
+                durasiExpd: 1,
+                tglExpd: "2023-05-10",
+                kondisi: "Dalam Perbaikan",
+                transaksi: "Barang Masuk",
+                pic: "Agus Prayitno",
+                dept: "Workshop IT",
+                catatan: "Display LCD Mati Total & Modul konslet"
+            },
+            {
+                id: "RAD-003",
+                unitPengguna: "Safety Pit 3",
+                sn: "901CPX2005",
+                idPtt: "PTT-309",
+                model: "Motorola XiR C2660",
+                tglKomisioning: "2025-01-10",
+                durasiExpd: 2,
+                tglExpd: "2027-01-10",
+                kondisi: "Bagus",
+                transaksi: "Barang Masuk",
+                pic: "Hendra K.",
+                dept: "HSE / Safety",
+                catatan: "HT Patroli Siaga, Baterai sehat 100%"
+            },
+            {
+                id: "RAD-004",
+                unitPengguna: "DT-808",
+                sn: "882CPX4001",
+                idPtt: "PTT-808",
+                model: "Motorola CP 1660",
+                tglKomisioning: "2024-03-20",
+                durasiExpd: 1,
+                tglExpd: "2025-03-20",
+                kondisi: "Bagus",
+                transaksi: "Barang Keluar",
+                pic: "Rahmat Hidayat",
+                dept: "Hauling Fleet",
+                catatan: "Penyerahan unit pengganti ke driver"
+            },
+            {
+                id: "RAD-005",
+                unitPengguna: "SEC-POST-01",
+                sn: "901CPX2088",
+                idPtt: "PTT-001",
+                model: "Motorola XiR C2660",
+                tglKomisioning: "2022-11-01",
+                durasiExpd: 2,
+                tglExpd: "2024-11-01",
+                kondisi: "Rusak Ringan",
+                transaksi: "Barang Masuk",
+                pic: "Syarifuddin",
+                dept: "Security Port",
+                catatan: "Tombol PTT Agak Keras & Antena retak"
+            }
+        ];
+
+        let adminCreds = JSON.parse(localStorage.getItem('bmc_admin_creds')) || { username: "zainudin", password: "bmc" };
+        let viewerCreds = JSON.parse(localStorage.getItem('bmc_viewer_creds')) || { username: "viewer", password: "123" };
+        let currentRole = sessionStorage.getItem('bmc_current_role') || '';
+
+        let radioData = JSON.parse(localStorage.getItem('bmc_radio_data_v10')) || INITIAL_DATA;
+        let conditionChartInstance = null;
+        let expdChartInstance = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const isLogged = sessionStorage.getItem('bmc_is_logged_in');
+            if (isLogged === 'true') {
+                showAppContent();
+            }
+        });
+
+        function processMainLogin(event) {
+            event.preventDefault();
+            const uInput = document.getElementById('main-username').value.trim();
+            const pInput = document.getElementById('main-password').value.trim();
+
+            if (uInput === adminCreds.username && pInput === adminCreds.password) {
+                sessionStorage.setItem('bmc_is_logged_in', 'true');
+                sessionStorage.setItem('bmc_current_role', 'admin');
+                currentRole = 'admin';
+                showAppContent();
+                showToast("Login Berhasil sebagai Server / Admin!", "success");
+            } else if (uInput === viewerCreds.username && pInput === viewerCreds.password) {
+                sessionStorage.setItem('bmc_is_logged_in', 'true');
+                sessionStorage.setItem('bmc_current_role', 'viewer');
+                currentRole = 'viewer';
+                showAppContent();
+                showToast("Login Berhasil sebagai Viewer (Read-Only)!", "success");
+            } else {
+                showToast("Username atau Password salah!", "danger");
+            }
+        }
+
+        function handleMainLogout() {
+            sessionStorage.clear();
+            document.getElementById('app-content-wrapper').classList.add('hidden');
+            document.getElementById('main-login-screen').classList.remove('hidden');
+            document.getElementById('main-username').value = '';
+            document.getElementById('main-password').value = '';
+            showToast("Anda telah keluar dari sistem.", "success");
+        }
+
+        function showAppContent() {
+            document.getElementById('main-login-screen').classList.add('hidden');
+            document.getElementById('app-content-wrapper').classList.remove('hidden');
+
+            const body = document.getElementById('app-body');
+            const roleBadge = document.getElementById('role-badge');
+            const loggedDesc = document.getElementById('logged-user-desc');
+
+            if (currentRole === 'viewer') {
+                body.classList.add('viewer-access');
+                roleBadge.className = "bg-slate-700 text-slate-300 text-[10px] font-bold px-2.5 py-0.5 rounded shadow";
+                roleBadge.innerText = "VIEWER (READ-ONLY)";
+                loggedDesc.innerText = `Pengguna Tamu (${viewerCreds.username} / Lihat & Unduh Saja)`;
+            } else {
+                body.classList.remove('viewer-access');
+                roleBadge.className = "bg-amber-500 text-slate-950 text-[10px] font-bold px-2.5 py-0.5 rounded shadow";
+                roleBadge.innerText = "SERVER / ADMIN";
+                loggedDesc.innerText = "ZAINUDIN (IT Specialist / Full Server Access)";
+            }
+
+            const printDateElem = document.getElementById('print-date');
+            if (printDateElem) {
+                printDateElem.innerText = "Dicetak pada: " + new Date().toLocaleString('id-ID');
+            }
+            
+            const tglKomiElem = document.getElementById('form-tgl-komisioning');
+            if (tglKomiElem && !tglKomiElem.value) {
+                tglKomiElem.value = new Date().toISOString().split('T')[0];
+            }
+            calculateExpdDate();
+            switchTab('inventaris');
+            renderTables();
+        }
+
+        function openSecurityModal() {
+            const desc = document.getElementById('sec-current-role-desc');
+            const adminBox = document.getElementById('admin-security-settings');
+
+            if (currentRole === 'viewer') {
+                desc.innerText = "Anda login sebagai Viewer. Pengubahan kredensial Admin hanya dapat diproses dari role Server.";
+                adminBox.style.display = 'none';
+            } else {
+                desc.innerText = `Admin Aktif: ${adminCreds.username}`;
+                adminBox.style.display = 'block';
+                document.getElementById('new-admin-user').value = adminCreds.username;
+                document.getElementById('new-admin-pass').value = '';
+            }
+
+            document.getElementById('viewer-user').value = viewerCreds.username;
+            document.getElementById('viewer-pass').value = '';
+            document.getElementById('security-modal').classList.remove('hidden');
+        }
+
+        function closeSecurityModal() {
+            document.getElementById('security-modal').classList.add('hidden');
+        }
+
+        function updateAdminCredentials() {
+            const newUser = document.getElementById('new-admin-user').value.trim();
+            const newPass = document.getElementById('new-admin-pass').value.trim();
+
+            if (!newUser || !newPass) {
+                showToast("Username dan Password admin tidak boleh kosong!", "danger");
+                return;
+            }
+
+            adminCreds.username = newUser;
+            adminCreds.password = newPass;
+            localStorage.setItem('bmc_admin_creds', JSON.stringify(adminCreds));
+            closeSecurityModal();
+            showToast("Kredensial Admin berhasil diperbarui!", "success");
+        }
+
+        function updateViewerCredentials() {
+            const newUser = document.getElementById('viewer-user').value.trim();
+            const newPass = document.getElementById('viewer-pass').value.trim();
+
+            if (!newUser || !newPass) {
+                showToast("Username dan Password viewer tidak boleh kosong!", "danger");
+                return;
+            }
+
+            viewerCreds.username = newUser;
+            viewerCreds.password = newPass;
+            localStorage.setItem('bmc_viewer_creds', JSON.stringify(viewerCreds));
+            closeSecurityModal();
+            showToast("Kredensial Viewer berhasil diperbarui!", "success");
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            
+            const toast = document.createElement('div');
+            toast.className = `px-4 py-3 rounded-xl shadow-lg text-xs font-bold flex items-center gap-2 pointer-events-auto transition duration-300 transform translate-y-2 opacity-0 ${
+                type === 'success' ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
+            }`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i> ${message}`;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function switchTab(tabName) {
+            ['dashboard', 'inventaris', 'transaksi', 'service'].forEach(t => {
+                const tabElem = document.getElementById(`tab-${t}`);
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (tabElem) tabElem.classList.add('hidden');
+                if (btn) {
+                    btn.classList.remove('border-amber-500', 'text-amber-600');
+                    btn.classList.add('border-transparent', 'text-slate-500');
+                }
+            });
+
+            const activeTab = document.getElementById(`tab-${tabName}`);
+            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+            
+            if (activeTab) activeTab.classList.remove('hidden');
+            if (activeBtn) {
+                activeBtn.classList.remove('border-transparent', 'text-slate-500');
+                activeBtn.classList.add('border-amber-500', 'text-amber-600');
+            }
+
+            if (tabName === 'dashboard') {
+                setTimeout(initCharts, 100);
+            }
+        }
+
+        function calculateExpdDate() {
+            const tglKomiElem = document.getElementById('form-tgl-komisioning');
+            const durasiElem = document.getElementById('form-durasi-expd');
+            const displayElem = document.getElementById('form-tgl-expd-display');
+            
+            if (!tglKomiElem || !durasiElem || !displayElem) return;
+
+            const tglKomi = tglKomiElem.value;
+            const years = parseInt(durasiElem.value) || 2;
+            
+            if (tglKomi) {
+                const date = new Date(tglKomi);
+                date.setFullYear(date.getFullYear() + years);
+                const expdStr = date.toISOString().split('T')[0];
+                displayElem.value = `${expdStr} (${years} Tahun Garansi)`;
+            }
+        }
+
+        function getExpdStatusBadge(expdDateStr) {
+            if (!expdDateStr) return '-';
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const expdDate = new Date(expdDateStr);
+            expdDate.setHours(0, 0, 0, 0);
+
+            const diffTime = expdDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays < 0) {
+                const absDays = Math.abs(diffDays);
+                return `<span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-purple-100 text-purple-700 shadow-sm inline-flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation text-purple-500"></i> Expired (${absDays} hr lalu)</span>`;
+            } else if (diffDays === 0) {
+                return `<span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-100 text-amber-800 shadow-sm inline-flex items-center gap-1.5"><i class="fa-solid fa-clock"></i> Expired Hari Ini</span>`;
+            } else {
+                const months = Math.floor(diffDays / 30);
+                const days = diffDays % 30;
+                let text = months > 0 ? `Sisa ${months} bln ${days} hr` : `Sisa ${days} hr`;
+                return `<span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 shadow-sm inline-flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-emerald-600"></i> ${text}</span>`;
+            }
+        }
+
+        function isExpired(expdDateStr) {
+            if (!expdDateStr) return false;
+            return new Date(expdDateStr) < new Date();
+        }
+
+        function renderTables() {
+            const searchInput = document.getElementById('search-input');
+            const serviceSearchInput = document.getElementById('service-search-input');
+            const filterStatusInput = document.getElementById('filter-status');
+            
+            const search = searchInput ? searchInput.value.toLowerCase() : '';
+            const serviceSearch = serviceSearchInput ? serviceSearchInput.value.toLowerCase() : '';
+            const filterStat = filterStatusInput ? filterStatusInput.value : '';
+
+            const invBody = document.getElementById('inventory-table-body');
+            const trxBody = document.getElementById('transaksi-table-body');
+            const srvBody = document.getElementById('service-table-body');
+
+            if (!invBody || !trxBody || !srvBody) return;
+
+            invBody.innerHTML = '';
+            trxBody.innerHTML = '';
+            srvBody.innerHTML = '';
+
+            let totalRadio = radioData.length;
+            let kondisiBaik = 0, perluService = 0, totalExpired = 0, barangMasuk = 0, barangKeluar = 0;
+            let m3688Count = 0, c2660Count = 0, cp1660Count = 0;
+            let invIndex = 1, trxIndex = 1, srvCount = 0;
+
+            radioData.forEach(item => {
+                if (item.kondisi === 'Bagus') kondisiBaik++;
+                else perluService++;
+
+                if (isExpired(item.tglExpd)) totalExpired++;
+                if (item.transaksi === 'Barang Keluar') barangKeluar++;
+                else barangMasuk++;
+
+                if (item.model.includes('M3688')) m3688Count++;
+                else if (item.model.includes('C2660')) c2660Count++;
+                else if (item.model.includes('1660')) cp1660Count++;
+
+                const matchSearch = item.sn.toLowerCase().includes(search) || 
+                                    item.unitPengguna.toLowerCase().includes(search) || 
+                                    item.idPtt.toLowerCase().includes(search) ||
+                                    item.model.toLowerCase().includes(search) ||
+                                    item.pic.toLowerCase().includes(search) ||
+                                    (item.catatan || '').toLowerCase().includes(search);
+                const matchStatus = filterStat === "" || item.kondisi === filterStat;
+
+                if (matchSearch && matchStatus) {
+                    let kondBadge = item.kondisi === 'Bagus' 
+                        ? `<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">Kondisi Baik</span>`
+                        : `<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold">${item.kondisi}</span>`;
+
+                    let actionColumn = currentRole === 'admin' ? `
+                        <td class="p-3 text-center no-print space-x-1">
+                            <button onclick="editRadio('${item.id}')" title="Edit Data" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteRadio('${item.id}')" title="Hapus Data" class="p-1.5 text-red-600 hover:bg-red-50 rounded transition"><i class="fa-solid fa-trash"></i></button>
+                        </td>` : `<td class="p-3 text-center text-slate-400 no-print">Read-Only</td>`;
+
+                    invBody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="p-3 text-center font-bold text-slate-400">${invIndex++}</td>
+                            <td class="p-3 font-bold text-slate-900">${item.unitPengguna}</td>
+                            <td class="p-3 font-mono font-bold text-blue-600">${item.sn}</td>
+                            <td class="p-3 font-semibold text-amber-600">${item.idPtt}</td>
+                            <td class="p-3 font-medium">${item.model}</td>
+                            <td class="p-3">${item.tglKomisioning}</td>
+                            <td class="p-3">${item.durasiExpd} Thn</td>
+                            <td class="p-3 font-mono font-semibold text-slate-700">${item.tglExpd}</td>
+                            <td class="p-3">${getExpdStatusBadge(item.tglExpd)}</td>
+                            <td class="p-3">${kondBadge}</td>
+                            <td class="p-3"><strong>${item.pic}</strong><br><span class="text-[10px] text-slate-400">${item.dept}</span></td>
+                            <td class="p-3 text-slate-600 italic max-w-xs">${item.catatan || '-'}</td>
+                            ${actionColumn}
+                        </tr>
+                    `;
+
+                    trxBody.innerHTML += `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 text-center text-slate-400">${trxIndex++}</td>
+                            <td class="p-3 font-mono">${item.tglKomisioning}</td>
+                            <td class="p-3 font-bold ${item.transaksi === 'Barang Keluar' ? 'text-amber-600' : 'text-teal-700'}">${item.transaksi || 'Barang Masuk'}</td>
+                            <td class="p-3 font-bold text-slate-900">${item.unitPengguna}</td>
+                            <td class="p-3 font-mono">${item.sn} <span class="text-slate-400 font-sans">(${item.model})</span></td>
+                            <td class="p-3 font-semibold">${item.pic}</td>
+                            <td class="p-3">${item.dept}</td>
+                            <td class="p-3 text-slate-500 italic">${item.catatan || '-'}</td>
+                        </tr>
+                    `;
+                }
+
+                if (item.kondisi !== 'Bagus') {
+                    const matchServiceSearch = serviceSearch === '' || 
+                        item.sn.toLowerCase().includes(serviceSearch) || 
+                        item.idPtt.toLowerCase().includes(serviceSearch) || 
+                        (item.catatan || '').toLowerCase().includes(serviceSearch);
+
+                    if (matchServiceSearch) {
+                        srvCount++;
+                        let srvActionColumn = currentRole === 'admin' ? `
+                            <td class="p-3.5 pr-5 text-right no-print space-x-2">
+                                <button onclick="editRadio('${item.id}')" title="Edit Service" class="text-blue-600 hover:text-blue-800 transition text-sm"><i class="fa-regular fa-pen-to-square"></i></button>
+                                <button onclick="deleteRadio('${item.id}')" title="Hapus Log" class="text-rose-600 hover:text-rose-800 transition text-sm"><i class="fa-regular fa-trash-can"></i></button>
+                            </td>` : `<td class="p-3.5 pr-5 text-right text-slate-400 no-print">Read-Only</td>`;
+
+                        srvBody.innerHTML += `
+                            <tr class="hover:bg-slate-50/80 transition border-b border-slate-100">
+                                <td class="p-3.5 pl-5 font-bold text-amber-500 tracking-wide">${item.idPtt || 'PTT-105'}</td>
+                                <td class="p-3.5 font-bold font-mono text-slate-900">${item.sn}</td>
+                                <td class="p-3.5 text-slate-600 font-medium">${item.tglKomisioning}</td>
+                                <td class="p-3.5 text-slate-800 font-semibold">${item.catatan || 'Perbaikan unit'}</td>
+                                <td class="p-3.5"><span class="px-3 py-1 rounded-full text-[11px] font-bold bg-purple-100 text-purple-700">${item.kondisi}</span></td>
+                                <td class="p-3.5 font-bold text-slate-700 uppercase tracking-wide">ZAINUDIN IT</td>
+                                <td class="p-3.5 text-slate-500">${item.catatan || '-'}</td>
+                                ${srvActionColumn}
+                            </tr>
+                        `;
+                    }
+                }
+            });
+
+            document.getElementById('dash-total-unit').innerText = totalRadio;
+            document.getElementById('dash-bagus-unit').innerText = kondisiBaik;
+            document.getElementById('dash-service-unit').innerText = perluService;
+            document.getElementById('dash-expired-unit').innerText = totalExpired;
+            document.getElementById('dash-masuk-unit').innerText = barangMasuk;
+            document.getElementById('dash-keluar-unit').innerText = barangKeluar;
+
+            document.getElementById('dash-m3688-count').innerText = m3688Count + " Unit";
+            document.getElementById('dash-c2660-count').innerText = c2660Count + " Unit";
+            document.getElementById('dash-cp1660-count').innerText = cp1660Count + " Unit";
+
+            const serviceInfoElem = document.getElementById('service-count-info');
+            if (serviceInfoElem) {
+                serviceInfoElem.innerText = `Menampilkan ${srvCount} log perbaikan/service`;
+            }
+
+            localStorage.setItem('bmc_radio_data_v10', JSON.stringify(radioData));
+        }
+
+        function initCharts() {
+            if (typeof Chart === 'undefined') return;
+
+            const ctxCond = document.getElementById('conditionChart')?.getContext('2d');
+            const ctxExpd = document.getElementById('expdChart')?.getContext('2d');
+            if (!ctxCond || !ctxExpd) return;
+
+            if (conditionChartInstance) conditionChartInstance.destroy();
+            if (expdChartInstance) expdChartInstance.destroy();
+
+            const baik = radioData.filter(r => r.kondisi === 'Bagus').length;
+            const rusak = radioData.filter(r => r.kondisi !== 'Bagus').length;
+
+            conditionChartInstance = new Chart(ctxCond, {
+                type: 'doughnut',
+                data: { labels: ['Kondisi Baik / Siap', 'Perlu Service / Rusak'], datasets: [{ data: [baik, rusak], backgroundColor: ['#10b981', '#f43f5e'] }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            const expd1 = radioData.filter(r => parseInt(r.durasiExpd) === 1).length;
+            const expd2 = radioData.filter(r => parseInt(r.durasiExpd) === 2).length;
+
+            expdChartInstance = new Chart(ctxExpd, {
+                type: 'bar',
+                data: { labels: ['1 Tahun Garansi', '2 Tahun Garansi'], datasets: [{ label: 'Jumlah Unit Radio', data: [expd1, expd2], backgroundColor: ['#f59e0b', '#3b82f6'] }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function openAddModal() {
+            if (currentRole === 'viewer') {
+                showToast("Akses ditolak! Viewer hanya dapat melihat dan mengunduh data.", "danger");
+                return;
+            }
+            document.getElementById('radio-form').reset();
+            document.getElementById('radio-id').value = '';
+            document.getElementById('form-tgl-komisioning').value = new Date().toISOString().split('T')[0];
+            calculateExpdDate();
+            document.getElementById('modal-title').innerText = "Form Data Radio & Service Motorola";
+            document.getElementById('radio-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('radio-modal').classList.add('hidden');
+        }
+
+        function saveRadioData(event) {
+            event.preventDefault();
+            if (currentRole === 'viewer') return;
+
+            const id = document.getElementById('radio-id').value;
+            const years = parseInt(document.getElementById('form-durasi-expd').value) || 2;
+            const tglKomi = document.getElementById('form-tgl-komisioning').value;
+
+            const expdObj = new Date(tglKomi);
+            expdObj.setFullYear(expdObj.getFullYear() + years);
+
+            const payload = {
+                id: id || 'RAD-' + Date.now(),
+                unitPengguna: document.getElementById('form-unit-pengguna').value,
+                sn: document.getElementById('form-sn').value,
+                idPtt: document.getElementById('form-id-ptt').value,
+                model: document.getElementById('form-model').value,
+                tglKomisioning: tglKomi,
+                durasiExpd: years,
+                tglExpd: expdObj.toISOString().split('T')[0],
+                kondisi: document.getElementById('form-kondisi').value,
+                transaksi: document.getElementById('form-transaksi').value,
+                pic: document.getElementById('form-pic').value,
+                dept: document.getElementById('form-dept').value,
+                catatan: document.getElementById('form-catatan').value
+            };
+
+            if (id) {
+                const index = radioData.findIndex(r => r.id === id);
+                if (index !== -1) radioData[index] = payload;
+                showToast("Data radio berhasil diperbarui!");
+            } else {
+                radioData.push(payload);
+                showToast("Data radio berhasil ditambahkan!");
+            }
+
+            closeModal();
+            renderTables();
+            initCharts();
+        }
+
+        function editRadio(id) {
+            if (currentRole === 'viewer') {
+                showToast("Akses ditolak! Viewer tidak dapat mengedit data.", "danger");
+                return;
+            }
+            const item = radioData.find(r => r.id === id);
+            if (!item) return;
+
+            document.getElementById('radio-id').value = item.id;
+            document.getElementById('form-unit-pengguna').value = item.unitPengguna;
+            document.getElementById('form-sn').value = item.sn;
+            document.getElementById('form-id-ptt').value = item.idPtt;
+            document.getElementById('form-model').value = item.model;
+            document.getElementById('form-tgl-komisioning').value = item.tglKomisioning;
+            document.getElementById('form-durasi-expd').value = item.durasiExpd;
+            document.getElementById('form-kondisi').value = item.kondisi;
+            document.getElementById('form-transaksi').value = item.transaksi || 'Barang Masuk';
+            document.getElementById('form-pic').value = item.pic;
+            document.getElementById('form-dept').value = item.dept;
+            document.getElementById('form-catatan').value = item.catatan || '';
+
+            calculateExpdDate();
+            document.getElementById('modal-title').innerText = "Edit Data Radio " + item.sn;
+            document.getElementById('radio-modal').classList.remove('hidden');
+        }
+
+        function deleteRadio(id) {
+            if (currentRole === 'viewer') {
+                showToast("Akses ditolak! Viewer tidak dapat menghapus data.", "danger");
+                return;
+            }
+            if (confirm("Apakah Anda yakin ingin menghapus data radio ini?")) {
+                radioData = radioData.filter(r => r.id !== id);
+                renderTables();
+                initCharts();
+                showToast("Data radio telah dihapus", "danger");
+            }
+        }
+
+        function resetToInitialData() {
+            if (currentRole === 'viewer') return;
+            if (confirm("Reset seluruh data ke kondisi awal sampel bawaan PT. Bandang Mining Coal?")) {
+                radioData = [...INITIAL_DATA];
+                renderTables();
+                initCharts();
+                showToast("Data berhasil direset ke sampel awal!", "success");
+            }
+        }
+
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "No,Unit Pengguna,Serial Number,ID PTT,Model Radio,Tgl Komisioning,Garansi (Thn),Tgl EXPD,Kondisi,PIC,Dept,Catatan\n";
+
+            radioData.forEach((r, index) => {
+                let row = [
+                    index + 1,
+                    `"${r.unitPengguna}"`,
+                    `"${r.sn}"`,
+                    `"${r.idPtt}"`,
+                    `"${r.model}"`,
+                    `"${r.tglKomisioning}"`,
+                    `"${r.durasiExpd}"`,
+                    `"${r.tglExpd}"`,
+                    `"${r.kondisi}"`,
+                    `"${r.pic}"`,
+                    `"${r.dept}"`,
+                    `"${(r.catatan || '').replace(/"/g, '""')}"`
+                ].join(",");
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Rekap_Radio_BMC_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("Laporan CSV berhasil diunduh!", "success");
+        }
+    </script>
+</body>
+</html>
